@@ -1,5 +1,5 @@
 const app = require('./app');
-const PORT = process.env.APP_PORT || 3000;
+const PORT = process.env.API_PORT;
 const time = require('./controllers/timeController');
 
 time.globalTimer();
