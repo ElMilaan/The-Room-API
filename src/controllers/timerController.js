@@ -184,7 +184,6 @@ exports.stopTimer = async (req, res) => {
 
         const timer = result.rows[0];
         const newValue = timer.value - timerDifference(timer.updated_at);
-        console.log("NOUVELLE VALEUR CALCULÉE :", timerDifference(timer.updated_at));
 
         if (timer.status === "running") {
             const updateResult = await pool.query(
@@ -212,15 +211,39 @@ exports.stopTimer = async (req, res) => {
 exports.stopAllTimers = async (req, res) => {
     try {
         const result = await pool.query(
-            `UPDATE chronos SET status = 'paused' RETURNING *`
+            "SELECT * FROM chronos"
         );
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ error: "Commande erronée" });
+            return res.status(404).json({ error: "Aucun chrono trouvé" });
         }
+
+        const timers = result.rows;
+        const updatedTimers = [];
+
+        const difference = timerDifference(timers[0].updated_at);
+
+        for (const timer of timers) {
+
+            if (timer.status === "running") {
+
+                const newValue = timer.value - difference;
+
+                const updateResult = await pool.query(
+                    `UPDATE chronos SET status = 'paused', value = $1 WHERE id = $2 RETURNING *`,
+                    [newValue, timer.id]
+                );
+
+                updatedTimers.push(updateResult.rows[0]);
+            }
+            else {
+                updatedTimers.push(timer);
+            }
+        }
+
         return res.json({
-            message: `Tous les chronos ont été arrêtés`,
-            chronos: result.rows
+            message: "Tous les chronos ont été arrêtés",
+            chronos: updatedTimers
         });
     }
     catch (err) {
