@@ -1,4 +1,4 @@
-const { getIdParam } = require("./utils");
+const { getIdParam, timerDifference } = require("./utils");
 const { error } = require("./errorController");
 const pool = require("../models/db");
 
@@ -47,7 +47,7 @@ exports.resetTimer = async (req, res) => {
 
         const result = await pool.query(
             "UPDATE chronos SET value = $1 WHERE id = $2 RETURNING *",
-            [id === 0 ? START_CHRONO_TEAM : START_CHRONO_PLAYER, id]
+            [id == 0 ? START_CHRONO_TEAM : START_CHRONO_PLAYER, id]
         );
 
         if (result.rows.length === 0) {
@@ -176,18 +176,33 @@ exports.startAllTimers = async (req, res) => {
 exports.stopTimer = async (req, res) => {
     const id = getIdParam(req, res);
     try {
-        const result = await pool.query(
-            `UPDATE chronos SET status = 'paused' WHERE id = $1 RETURNING *`,
-            [id]
-        );
+        const result = await pool.query("SELECT * FROM chronos WHERE id = $1", [id]);
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ error: "Chrono" + id + " non trouvé" });
+            return res.status(404).json({ error: "Chrono " + id + " non trouvé" });
         }
-        return res.json({
-            message: `Chrono ${id} arrêté`,
-            chronos: result.rows[0]
-        });
+
+        const timer = result.rows[0];
+        const newValue = timer.value - timerDifference(timer.updated_at);
+        console.log("NOUVELLE VALEUR CALCULÉE :", timerDifference(timer.updated_at));
+
+        if (timer.status === "running") {
+            const updateResult = await pool.query(
+                `UPDATE chronos SET status = 'paused', value = $1 WHERE id = $2 RETURNING *`,
+                [newValue, id]
+            );
+
+            return res.json({
+                message: `Chrono ${id} arrêté`,
+                chronos: updateResult.rows[0]
+            });
+        }
+        else {
+            return res.json({
+                message: `Chrono ${id} déjà arrêté`,
+                chronos: timer
+            });
+        }
     }
     catch (err) {
         error(res, 500, 'Erreur serveur : ' + err.message);

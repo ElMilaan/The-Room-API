@@ -7,3 +7,9 @@ exports.getIdParam = (req, res) => {
     }
     return id;
 }
+
+exports.timerDifference = (updated_at) => {
+    const lastUpdate = new Date(updated_at).getTime();
+    const now = Date.now();
+    return now - lastUpdate;
+}
