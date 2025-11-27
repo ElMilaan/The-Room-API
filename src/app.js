@@ -5,7 +5,7 @@ const setupSwagger = require('./swagger');
 
 const app = express();
 
-setupSwagger(app);
+setupSwagger(app); // Marche pas c'est relou mais sûrement parce que cette app est server side only
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

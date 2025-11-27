@@ -1,5 +1,6 @@
 const { error } = require("./errorController");
 
+// Récup les id des timers et vérifie qu'ils sont valides
 exports.getIdParam = (req, res) => {
     const id = req.params?.id;
     if (Number(id) < 0 || Number(id) > 5) {
@@ -7,6 +8,8 @@ exports.getIdParam = (req, res) => {
     }
     return id;
 }
+
+// Calcule la différence de temps entre maintenant et la dernière mise à jour -> MAJ entre start et stop
 
 exports.timerDifference = (updated_at) => {
     const lastUpdate = new Date(updated_at).getTime();
