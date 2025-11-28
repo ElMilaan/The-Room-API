@@ -12,7 +12,7 @@ const options = {
         servers: [
             {
                 // url: 'http://localhost:3000',
-                url: "https://the-room-3n3qbr2hi-milans-projects-c8f04765.vercel.app/"
+                url: "https://the-room-api.vercel.app"
             },
         ],
     },
