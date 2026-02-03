@@ -246,4 +246,6 @@ router.put('/timer/stopAll', timerController.stopAllTimers);
  */
 router.put('/timer/changeSpeed/:id', timerController.changeTimerSpeed);
 
+router.put('/timer/changeAllSpeed', timerController.changeAllSpeeds);
+
 module.exports = router;

@@ -272,3 +272,37 @@ exports.changeTimerSpeed = async (req, res) => {
         error(res, 500, 'Erreur serveur : ' + err.message);
     }
 }
+
+exports.changeAllSpeeds = async (req, res) => {
+    const { speed } = req.body;
+    try {
+        const result = await pool.query(
+            "SELECT * FROM chronos"
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Stop all timers : Aucun chrono trouvé" });
+        }
+
+        const timers = result.rows;
+        const updatedTimers = [];
+
+        for (const timer of timers) {
+
+            const updateResult = await pool.query(
+                `UPDATE chronos SET speed = $1 WHERE id$2 RETURNING *`,
+                [speed, timer.id]
+            );
+
+            updatedTimers.push(updateResult.rows[0]);
+        }
+
+        return res.json({
+            message: "La vitesse de touus les chronos sont à " + speed,
+            chronos: updatedTimers
+        });
+    }
+    catch (err) {
+        error(res, 500, 'Erreur serveur : ' + err.message);
+    }
+}
