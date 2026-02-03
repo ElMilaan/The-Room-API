@@ -290,7 +290,7 @@ exports.changeAllSpeeds = async (req, res) => {
         for (const timer of timers) {
 
             const updateResult = await pool.query(
-                `UPDATE chronos SET speed = $1 WHERE id$2 RETURNING *`,
+                `UPDATE chronos SET speed = $1 WHERE id = $2 RETURNING *`,
                 [speed, timer.id]
             );
 
