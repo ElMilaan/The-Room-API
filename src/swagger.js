@@ -11,8 +11,8 @@ const options = {
         },
         servers: [
             {
-                // url: 'http://localhost:3000',
-                url: "https://the-room-api.vercel.app"
+                url: 'http://localhost:3000',
+                // url: "https://the-room-api.vercel.app"
             },
         ],
     },

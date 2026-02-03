@@ -28,7 +28,7 @@ const timerController = require('../controllers/timerController');
  *       404:
  *         description: Timer non trouvé
  *       500:
- *        description: Erreur serveur
+ *         description: Erreur serveur
  */
 router.get('/timer/:id', timerController.getTimer);
 
@@ -42,7 +42,7 @@ router.get('/timer/:id', timerController.getTimer);
  *       200:
  *         description: Liste de tous les timers
  *       500:
- *        description: Erreur serveur
+ *         description: Erreur serveur
  */
 router.get('/timer', timerController.getAllTimers);
 
@@ -57,15 +57,15 @@ router.get('/timer', timerController.getAllTimers);
  *         name: id
  *         schema:
  *           type: string
- *         required: true
- *         description: ID du timer à réinitialiser
+ *           required: true
+ *           description: ID du timer à réinitialiser
  *     responses:
  *       200:
  *         description: Timer réinitialisé avec succès
  *       404:
  *         description: Timer non trouvé
- *      500:
- *        description: Erreur serveur
+ *       500:
+ *         description: Erreur serveur
  */
 router.put('/timer/reset/:id', timerController.resetTimer);
 
@@ -222,5 +222,28 @@ router.put('/timer/stop/:id', timerController.stopTimer);
  *        description: Erreur serveur
  */
 router.put('/timer/stopAll', timerController.stopAllTimers);
+
+/**
+ * @swagger
+ * /api/timer/changeSpeed/{id}:
+ *   put:
+ *     summary: Modifier la vitesse d'un timer
+ *     tags: [Timer]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID du timer
+ *     responses:
+ *       200:
+ *         description: vitesse du timer modifiée avec succès
+ *       404:
+ *         description: Timer non trouvé
+ *       500:
+ *        description: Erreur serveur
+ */
+router.put('/timer/changeSpeed/:id', timerController.changeTimerSpeed);
 
 module.exports = router;

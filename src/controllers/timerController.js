@@ -179,11 +179,11 @@ exports.stopTimer = async (req, res) => {
         const result = await pool.query("SELECT * FROM chronos WHERE id = $1", [id]);
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ error: "Chrono " + id + " non trouvé" });
+            return res.status(404).json({ error: "Stop timer : Chrono " + id + " non trouvé" });
         }
 
         const timer = result.rows[0];
-        const newValue = timer.value - timerDifference(timer.updated_at);
+        const newValue = timer.value - timerDifference(timer.updated_at) * timer.speed;
 
         if (timer.status === "running") {
             const updateResult = await pool.query(
@@ -215,7 +215,7 @@ exports.stopAllTimers = async (req, res) => {
         );
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ error: "Aucun chrono trouvé" });
+            return res.status(404).json({ error: "Stop all timers : Aucun chrono trouvé" });
         }
 
         const timers = result.rows;
@@ -227,7 +227,7 @@ exports.stopAllTimers = async (req, res) => {
 
             if (timer.status === "running") {
 
-                const newValue = timer.value - difference;
+                const newValue = timer.value - difference * timer.speed;
 
                 const updateResult = await pool.query(
                     `UPDATE chronos SET status = 'paused', value = $1 WHERE id = $2 RETURNING *`,
@@ -250,3 +250,25 @@ exports.stopAllTimers = async (req, res) => {
         error(res, 500, 'Erreur serveur : ' + err.message);
     }
 };
+
+exports.changeTimerSpeed = async (req, res) => {
+    const id = getIdParam(req, res);
+    const { speed } = req.body;
+    try {
+        const result = await pool.query(
+            `UPDATE chronos SET speed = $1 WHERE id = $2 RETURNING *`,
+            [speed, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Chrono" + id + " non trouvé" });
+        }
+        return res.json({
+            message: `Vitesse du chrono ${id} modifiée à ${speed}`,
+            chronos: result.rows[0]
+        });
+    }
+    catch (err) {
+        error(res, 500, 'Erreur serveur : ' + err.message);
+    }
+}
