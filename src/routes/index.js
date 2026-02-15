@@ -118,6 +118,35 @@ router.put('/timer/add/:id', timerController.addToTimer);
 
 /**
  * @swagger
+ * /api/timer/modifySpecific:
+ *   put:
+ *     summary: Modifier les valeurs de plusieurs timers spécifiés dans le body
+ *     tags: [Timer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               ids_values:
+ *                 type: object
+ *                 description: Map of id -> time to add (in ms)
+ *                 additionalProperties:
+ *                   type: integer
+ *                   example: 5
+ *     responses:
+ *       200:
+ *         description: Timer spécifiés mis à jour avec succès
+ *       404:
+ *         description: Timers non trouvés
+ *       500:
+ *        description: Erreur serveur
+ */
+router.put('/timer/modifySpecific', timerController.modifyTimersSpecific);
+
+/**
+ * @swagger
  * /api/timer/subtract/{id}:
  *   put:
  *     summary: Soustraire du temps à un timer

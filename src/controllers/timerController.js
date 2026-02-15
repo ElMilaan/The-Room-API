@@ -111,6 +111,44 @@ exports.addToTimer = async (req, res) => {
     }
 };
 
+exports.modifyTimersSpecific = async (req, res) => {
+    const { ids_values } = req.body;
+    if (Object.keys(ids_values).length === 0) {
+        return res.status(400).json({ error: "Aucun ID fourni" });
+    }
+    try {
+        const result = await pool.query(
+            "SELECT * FROM chronos"
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Stop all timers : Aucun chrono trouvé" });
+        }
+
+        const timers = result.rows;
+        const updatedTimers = [];
+
+        for (const timer of timers) {
+            const valueToApply = ids_values[timer.id];
+            const newValue = timer.value + (valueToApply || 0);
+            const updateResult = await pool.query(
+                `UPDATE chronos SET value = $1 WHERE id = $2 RETURNING *`,
+                [newValue, timer.id]
+            );
+            updatedTimers.push(updateResult.rows[0]);
+        }
+
+        return res.json({
+            message: "Les chronos spécifiés ont été modifiés",
+            chronos: updatedTimers
+        });
+    }
+    catch (err) {
+        error(res, 500, 'Erreur serveur : ' + err.message);
+    }
+
+};
+
 exports.subtractFromTimer = async (req, res) => {
     const id = getIdParam(req, res);
     const { amount } = req.body;
