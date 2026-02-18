@@ -1,19 +1,14 @@
-const { getIdParam, timerDifference } = require("./utils");
+const { getIdParam } = require("../functions/utils");
 const { error } = require("./errorController");
-const pool = require("../models/db");
-
-const START_CHRONO_PLAYER = 5 * 1000 * 60;
-const START_CHRONO_TEAM = 25 * 1000 * 60;
+const timerFunctions = require("../functions/timer");
 
 exports.getTimer = async (req, res) => {
     const id = getIdParam(req, res);
     try {
-        const result = await pool.query("SELECT * FROM chronos WHERE id = $1", [id]);
-
+        const result = await timerFunctions.getTimer(id);
         if (result.rows.length === 0) {
             return res.status(404).send("Chrono " + id + " non trouvé");
         }
-
         return res.json({
             message: `Affichage du chrono ${id} :`,
             chronos: result.rows[0]
@@ -26,7 +21,7 @@ exports.getTimer = async (req, res) => {
 
 exports.getAllTimers = async (req, res) => {
     try {
-        const result = await pool.query("SELECT * FROM chronos ORDER BY id ASC");
+        const result = await timerFunctions.getAllTimers();
         return res.json({
             message: `Affichage de tous les chronos :`,
             chronos: result.rows
@@ -40,15 +35,7 @@ exports.getAllTimers = async (req, res) => {
 exports.resetTimer = async (req, res) => {
     const id = getIdParam(req, res);
     try {
-        await pool.query(
-            "UPDATE chronos SET status = 'paused' WHERE id = $1 RETURNING *",
-            [id]
-        );
-
-        const result = await pool.query(
-            "UPDATE chronos SET value = $1 WHERE id = $2 RETURNING *",
-            [id == 0 ? START_CHRONO_TEAM : START_CHRONO_PLAYER, id]
-        );
+        const result = await timerFunctions.resetTimer(id);
 
         if (result.rows.length === 0) {
             return res.status(404).send("Chrono " + id + " non trouvé");
@@ -65,23 +52,11 @@ exports.resetTimer = async (req, res) => {
 
 exports.resetAllTimers = async (req, res) => {
     try {
-        await pool.query(
-            "UPDATE chronos SET status = 'paused' RETURNING *"
-        );
-
-        const result1 = await pool.query(
-            "UPDATE chronos SET value = $1 WHERE id != 0 RETURNING *",
-            [START_CHRONO_PLAYER]
-        );
-
-        const result2 = await pool.query(
-            "UPDATE chronos SET value = $1 WHERE id = 0 RETURNING *",
-            [START_CHRONO_TEAM]
-        );
+        const result = await timerFunctions.resetAllTimers();
 
         return res.json({
             message: "Tous les chronos ont été réinitialisés",
-            chronos: result1.rows.concat(result2.rows[0])
+            chronos: result[0].rows.concat(result[1].rows[0])
         });
     }
     catch (err) {
@@ -93,10 +68,7 @@ exports.addToTimer = async (req, res) => {
     const id = getIdParam(req, res);
     const { amount } = req.body;
     try {
-        const result = await pool.query(
-            `UPDATE chronos SET value = value + $1 WHERE id = $2 RETURNING *`,
-            [amount, id]
-        );
+        const result = await timerFunctions.addToTimer(id, amount);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Chrono" + id + " non trouvé" });
@@ -117,30 +89,10 @@ exports.modifyTimersSpecific = async (req, res) => {
         return res.status(400).json({ error: "Aucun ID fourni" });
     }
     try {
-        const result = await pool.query(
-            "SELECT * FROM chronos"
-        );
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "Stop all timers : Aucun chrono trouvé" });
-        }
-
-        const timers = result.rows;
-        const updatedTimers = [];
-
-        for (const timer of timers) {
-            const valueToApply = ids_values[timer.id];
-            const newValue = timer.value + (valueToApply || 0);
-            const updateResult = await pool.query(
-                `UPDATE chronos SET value = $1 WHERE id = $2 RETURNING *`,
-                [newValue, timer.id]
-            );
-            updatedTimers.push(updateResult.rows[0]);
-        }
-
+        const result = await timerFunctions.modifyTimersSpecific(ids_values);
         return res.json({
             message: "Les chronos spécifiés ont été modifiés",
-            chronos: updatedTimers
+            chronos: result
         });
     }
     catch (err) {
@@ -153,10 +105,7 @@ exports.subtractFromTimer = async (req, res) => {
     const id = getIdParam(req, res);
     const { amount } = req.body;
     try {
-        const result = await pool.query(
-            `UPDATE chronos SET value = value - $1 WHERE id = $2 RETURNING *`,
-            [amount, id]
-        );
+        const result = await timerFunctions.subtractFromTimer(id, amount);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Chrono" + id + " non trouvé" });
@@ -174,10 +123,7 @@ exports.subtractFromTimer = async (req, res) => {
 exports.startTimer = async (req, res) => {
     const id = getIdParam(req, res);
     try {
-        const result = await pool.query(
-            `UPDATE chronos SET status = 'running' WHERE id = $1 RETURNING *`,
-            [id]
-        );
+        const result = await timerFunctions.startTimer(id);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Chrono" + id + " non trouvé" });
@@ -194,9 +140,7 @@ exports.startTimer = async (req, res) => {
 
 exports.startAllTimers = async (req, res) => {
     try {
-        const result = await pool.query(
-            `UPDATE chronos SET status = 'running' RETURNING *`
-        );
+        const result = await timerFunctions.startAllTimers();
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Commande erronée" });
@@ -214,32 +158,15 @@ exports.startAllTimers = async (req, res) => {
 exports.stopTimer = async (req, res) => {
     const id = getIdParam(req, res);
     try {
-        const result = await pool.query("SELECT * FROM chronos WHERE id = $1", [id]);
+        const result = await timerFunctions.stopTimer(id);
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "Stop timer : Chrono " + id + " non trouvé" });
+        if (result.length === 0) {
+            return res.status(404).json({ error: "Chrono" + id + " non trouvé" });
         }
-
-        const timer = result.rows[0];
-        const newValue = timer.value - timerDifference(timer.updated_at) * timer.speed;
-
-        if (timer.status === "running") {
-            const updateResult = await pool.query(
-                `UPDATE chronos SET status = 'paused', value = $1 WHERE id = $2 RETURNING *`,
-                [newValue, id]
-            );
-
-            return res.json({
-                message: `Chrono ${id} arrêté`,
-                chronos: updateResult.rows[0]
-            });
-        }
-        else {
-            return res.json({
-                message: `Chrono ${id} déjà arrêté`,
-                chronos: timer
-            });
-        }
+        return res.json({
+            message: result[0],
+            chronos: result[1]
+        });
     }
     catch (err) {
         error(res, 500, 'Erreur serveur : ' + err.message);
@@ -248,40 +175,15 @@ exports.stopTimer = async (req, res) => {
 
 exports.stopAllTimers = async (req, res) => {
     try {
-        const result = await pool.query(
-            "SELECT * FROM chronos"
-        );
+        const result = await timerFunctions.stopAllTimers();
 
-        if (result.rows.length === 0) {
+        if (result.length === 0) {
             return res.status(404).json({ error: "Stop all timers : Aucun chrono trouvé" });
-        }
-
-        const timers = result.rows;
-        const updatedTimers = [];
-
-        const difference = timerDifference(timers[0].updated_at);
-
-        for (const timer of timers) {
-
-            if (timer.status === "running") {
-
-                const newValue = timer.value - difference * timer.speed;
-
-                const updateResult = await pool.query(
-                    `UPDATE chronos SET status = 'paused', value = $1 WHERE id = $2 RETURNING *`,
-                    [newValue, timer.id]
-                );
-
-                updatedTimers.push(updateResult.rows[0]);
-            }
-            else {
-                updatedTimers.push(timer);
-            }
         }
 
         return res.json({
             message: "Tous les chronos ont été arrêtés",
-            chronos: updatedTimers
+            chronos: result
         });
     }
     catch (err) {
@@ -293,11 +195,7 @@ exports.changeTimerSpeed = async (req, res) => {
     const id = getIdParam(req, res);
     const { speed } = req.body;
     try {
-        const result = await pool.query(
-            `UPDATE chronos SET speed = $1 WHERE id = $2 RETURNING *`,
-            [speed, id]
-        );
-
+        const result = await timerFunctions.changeTimerSpeed(id, speed);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Chrono" + id + " non trouvé" });
         }
@@ -314,30 +212,15 @@ exports.changeTimerSpeed = async (req, res) => {
 exports.changeAllSpeeds = async (req, res) => {
     const { speed } = req.body;
     try {
-        const result = await pool.query(
-            "SELECT * FROM chronos"
-        );
+        const result = await timerFunctions.changeAllSpeeds(speed);
 
-        if (result.rows.length === 0) {
+        if (result.length === 0) {
             return res.status(404).json({ error: "Stop all timers : Aucun chrono trouvé" });
-        }
-
-        const timers = result.rows;
-        const updatedTimers = [];
-
-        for (const timer of timers) {
-
-            const updateResult = await pool.query(
-                `UPDATE chronos SET speed = $1 WHERE id = $2 RETURNING *`,
-                [speed, timer.id]
-            );
-
-            updatedTimers.push(updateResult.rows[0]);
         }
 
         return res.json({
             message: "La vitesse de touus les chronos sont à " + speed,
-            chronos: updatedTimers
+            chronos: result[0]
         });
     }
     catch (err) {

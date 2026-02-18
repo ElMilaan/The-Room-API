@@ -1,4 +1,4 @@
-const { error } = require("./errorController");
+const { error } = require("../controllers/errorController");
 
 // Récup les id des timers et vérifie qu'ils sont valides
 exports.getIdParam = (req, res) => {
@@ -15,4 +15,10 @@ exports.timerDifference = (updated_at) => {
     const lastUpdate = new Date(updated_at).getTime();
     const now = Date.now();
     return now - lastUpdate;
+}
+
+// Sleep pour faire attendre une fonction pendant un certain temps en asynchrone
+
+exports.sleep = async (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }

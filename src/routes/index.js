@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const timerController = require('../controllers/timerController');
+const buttonController = require('../controllers/buttonController');
+const gameController = require('../controllers/gameController');
+const echosImagesController = require('../controllers/echosImagesController');
 
 /**
  * @swagger
@@ -275,6 +278,192 @@ router.put('/timer/stopAll', timerController.stopAllTimers);
  */
 router.put('/timer/changeSpeed/:id', timerController.changeTimerSpeed);
 
+/**
+ * @swagger
+ * /api/timer/changeAllSpeed:
+ *   put:
+ *     summary: Modifier la vitesse de tous les timers
+ *     tags: [Timer]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               speed:
+ *                 type: number
+ *                 description: Nouvelle vitesse à appliquer à tous les timers (ex -> 2 pour doubler la vitesse)
+ *     responses:
+ *       200:
+ *         description: vitesse des timers modifiée avec succès
+ *       404:
+ *         description: Aucun timer trouvé
+ *       500:
+ *        description: Erreur serveur
+ */
 router.put('/timer/changeAllSpeed', timerController.changeAllSpeeds);
+
+/**
+ * @swagger
+ * tags:
+ *   name: Button
+ *   description: Gestion des boutons
+ */
+
+/**
+ * @swagger
+ * /api/button:
+ *   get:
+ *     summary: Modifier la vitesse d'un timer
+ *     tags: [Button]
+ *     responses:
+ *       200:
+ *         description: Boutons récupérés avec succès
+ *       404:
+ *         description: Aucun bouton trouvé
+ *       500:
+ *        description: Erreur serveur
+ */
+router.get('/button', buttonController.getButtons);
+
+/**
+ * @swagger
+ * /api/button/{id}:
+ *   get:
+ *     summary: Récupérer un bouton par ID
+ *     tags: [Button]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID du bouton
+ *     responses:
+ *       200:
+ *         description: Bouton récupéré avec succès
+ *       404:
+ *         description: Bouton non trouvé
+ *       500:
+ *        description: Erreur serveur
+ */
+router.get('/button/:id', buttonController.getButton);
+
+/**
+ * @swagger
+ * /api/button/press/{id}:
+ *   put:
+ *     summary: presser un bouton
+ *     tags: [Button]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID du bouton
+ *     responses:
+ *       200:
+ *         description: Bouton pressé avec succès
+ *       404:
+ *         description: Bouton non trouvé
+ *       500:
+ *        description: Erreur serveur
+ */
+router.put('/button/press/:id', buttonController.pressButton);
+
+/**
+ * @swagger
+ * tags:
+ *   name: Game
+ *   description: Gestion du jeu
+ */
+
+/**
+ * @swagger
+ * /api/game/pacte/start:
+ *   post:
+ *     summary: Démarrer le jeu Pacte
+ *     tags: [Game]
+ *     responses:
+ *       200:
+ *         description: Jeu Pacte démarré avec succès
+ *       500:
+ *        description: Erreur serveur
+ */
+router.post('/game/pacte/start', gameController.startPacte);
+
+/**
+ * @swagger
+ * /api/game/pacte/stop:
+ *   post:
+ *     summary: Arrêter le jeu Pacte
+ *     tags: [Game]
+ *     responses:
+ *       200:
+ *         description: Jeu Pacte arrêté avec succès
+ *       500:
+ *        description: Erreur serveur
+ */
+router.post('/game/pacte/stop', gameController.stopPacte);
+
+/**
+ * @swagger
+ * /api/game/echos/start:
+ *   post:
+ *     summary: Démarrer le jeu Echos du mur
+ *     tags: [Game]
+ *     responses:
+ *       200:
+ *         description: Jeu Echos du mur démarré avec succès
+ *       500:
+ *        description: Erreur serveur
+ */
+router.post('/game/echos/start', gameController.startEchos);
+
+/**
+ * @swagger
+ * /api/game/echos/stop:
+ *   post:
+ *     summary: Arrêter le jeu Echos du mur
+ *     tags: [Game]
+ *     responses:
+ *       200:
+ *         description: Jeu Echos du mur arrêté avec succès
+ *       500:
+ *        description: Erreur serveur
+ */
+router.post('/game/echos/stop', gameController.stopEchos);
+
+/**
+ * @swagger
+ * tags:
+ *   name: Echos du Mur
+ *   description: Données liées aux images des échos du mur
+ */
+
+/**
+ * @swagger
+ * /api/imagesEchos/color/{id}:
+ *   post:
+ *     summary: Récupère l'index actuel correspondant à la couleur renseignée en paramètre
+ *     tags: [Echos du Mur]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Ce n'est pas l'id mais la couleur dont on veut connaître l'index
+ *     responses:
+ *       200:
+ *         description: Index récupéré avec succès
+ *       404:
+ *        description: Aucune image trouvée pour la couleur spécifiée
+ *       500:
+ *        description: Erreur serveur
+ */
+router.get('/imagesEchos/color/:id', echosImagesController.getIndexByColor);
 
 module.exports = router;
