@@ -375,6 +375,52 @@ router.put('/button/press/:id', buttonController.pressButton);
 
 /**
  * @swagger
+ * /api/button/reset/{id}:
+ *   put:
+ *     summary: réinitialiser un bouton
+ *     tags: [Button]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID du bouton
+ *     responses:
+ *       200:
+ *         description: Bouton réinitialisé avec succès
+ *       404:
+ *         description: Bouton non trouvé
+ *       500:
+ *        description: Erreur serveur
+ */
+router.put('/button/reset/:id', buttonController.resetButton);
+
+/**
+ * @swagger
+ * /api/button/resetAll:
+ *   put:
+ *     summary: réinitialiser tous les boutons
+ *     tags: [Button]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID du bouton
+ *     responses:
+ *       200:
+ *         description: Boutons réinitialisés avec succès
+ *       404:
+ *         description: Boutons non trouvés
+ *       500:
+ *        description: Erreur serveur
+ */
+router.put('/button/resetAll', buttonController.resetButtons);
+
+/**
+ * @swagger
  * tags:
  *   name: Game
  *   description: Gestion du jeu

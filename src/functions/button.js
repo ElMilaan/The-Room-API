@@ -21,6 +21,23 @@ pressButton = async (id) => {
             `, [id]);
 }
 
+resetButton = async (id) => {
+    return await pool.query(`
+                UPDATE buttons 
+                SET pressed = false
+                WHERE id = $1
+                RETURNING *;
+            `, [id]);
+}
+
+resetButtons = async (id) => {
+    return await pool.query(`
+                UPDATE buttons 
+                SET pressed = false
+                RETURNING *;
+            `, [id]);
+}
+
 addTriggerOnPush = async () => {
     await pool.query(`
       CREATE TRIGGER trigger_button_press
@@ -41,6 +58,8 @@ module.exports = {
     getButtons,
     getButton,
     pressButton,
+    resetButton,
+    resetButtons,
     addTriggerOnPush,
     removeTriggerOnPush
 }

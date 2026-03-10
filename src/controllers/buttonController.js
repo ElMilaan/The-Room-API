@@ -52,6 +52,38 @@ exports.pressButton = async (req, res) => {
     }
 }
 
+exports.resetButton = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const result = await buttonFunctions.resetButton(id);
+
+        if (result.rows.length === 0) {
+            return res.status(404).send("Bouton " + id + " non trouvé");
+        }
+        return res.json({
+            message: `Le bouton ${id} a été réinitialisé`,
+            button: result.rows[0]
+        });
+    }
+    catch (err) {
+        error(res, 500, 'Erreur serveur : ' + err.message);
+    }
+}
+
+exports.resetButtons = async (req, res) => {
+    try {
+        const result = await buttonFunctions.resetButtons();
+
+        return res.json({
+            message: `Tous les boutons ont été réinitialisés`,
+            buttons: result.rows
+        });
+    }
+    catch (err) {
+        error(res, 500, 'Erreur serveur : ' + err.message);
+    }
+}
+
 exports.addTriggerOnPush = async (req, res) => {
     try {
         await buttonFunctions.addTriggerOnPush();
