@@ -30,7 +30,7 @@ resetButton = async (id) => {
             `, [id]);
 }
 
-resetButtons = async (id) => {
+resetButtons = async () => {
     return await pool.query(`
                 UPDATE buttons 
                 SET pressed = false
