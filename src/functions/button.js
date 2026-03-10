@@ -35,7 +35,7 @@ resetButtons = async () => {
                 UPDATE buttons 
                 SET pressed = false
                 RETURNING *;
-            `, [id]);
+            `, []);
 }
 
 addTriggerOnPush = async () => {
