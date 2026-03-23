@@ -26,7 +26,7 @@ exports.resetIndexes = async (req, res) => {
             return res.status(404).json("Aucune couleur n'a été trouvée");
         }
         return res.json({
-            index: result.rows[0].index
+            index: result.rows
         })
     }
     catch (err) {
