@@ -39,7 +39,7 @@ exports.pressButton = async (req, res) => {
     try {
         const result = await buttonFunctions.pressButton(id);
 
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 20));
 
         const reset = await buttonFunctions.resetButton(id);
 
