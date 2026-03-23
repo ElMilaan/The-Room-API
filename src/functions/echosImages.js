@@ -1,3 +1,4 @@
+const { resetIndexes } = require("../controllers/echosImagesController");
 const pool = require("../models/db");
 
 getByColor = async (color) => {
@@ -6,6 +7,14 @@ getByColor = async (color) => {
         `, [color]);
 }
 
+resetIndexes = async () => {
+    return await pool.query(`
+        UPDATE echos_images
+        SET index = 0
+        RETURNING *`)
+}
+
 module.exports = {
-    getByColor
+    getByColor,
+    resetIndexes
 }

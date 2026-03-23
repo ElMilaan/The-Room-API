@@ -16,3 +16,19 @@ exports.getIndexByColor = async (req, res) => {
         error(res, 500, 'Erreur serveur : ' + err.message);
     }
 }
+
+exports.resetIndexes = async (req, res) => {
+    try {
+        const result = echosImagesFunctions.resetIndexes();
+
+        if (result.rows.length === 0) {
+            return res.status(404).json("Aucune couleur n'a été trouvée");
+        }
+        return res.json({
+            index: result.rows[0].index
+        })
+    }
+    catch (err) {
+        error(res, 500, 'Erreur serveur : ' + err.message);
+    }
+}

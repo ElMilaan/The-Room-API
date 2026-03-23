@@ -512,4 +512,20 @@ router.post('/game/echos/stop', gameController.stopEchos);
  */
 router.get('/imagesEchos/color/:id', echosImagesController.getIndexByColor);
 
+/**
+ * @swagger
+ * /api/imagesEchos/reset:
+ *   post:
+ *     summary: Reset tous les index des images
+ *     tags: [Echos du Mur]
+ *     responses:
+ *       200:
+ *         description: Index réinitialisés
+ *       404:
+ *        description: Aucune couleur trouvée
+ *       500:
+ *        description: Erreur serveur
+ */
+router.get('/imagesEchos/reset', echosImagesController.resetIndexes);
+
 module.exports = router;
