@@ -39,6 +39,10 @@ exports.pressButton = async (req, res) => {
     try {
         const result = await buttonFunctions.pressButton(id);
 
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        const reset = await buttonFunctions.resetButton(id);
+
         if (result.rows.length === 0) {
             return res.status(404).send("Bouton " + id + " non trouvé");
         }
