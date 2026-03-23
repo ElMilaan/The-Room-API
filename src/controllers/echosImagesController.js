@@ -22,7 +22,7 @@ exports.resetIndexes = async (req, res) => {
     try {
         const result = echosImagesFunctions.resetIndexes();
 
-        if (result.rows.length === 0) {
+        if (!result) {
             return res.status(404).json("Aucune couleur n'a été trouvée");
         }
         return res.json({
