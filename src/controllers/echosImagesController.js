@@ -1,5 +1,6 @@
 const { getIdParam } = require("../functions/utils");
 const echosImagesFunctions = require("../functions/echosImages");
+const { error } = require("./errorController");
 
 exports.getIndexByColor = async (req, res) => {
     const id = getIdParam(req, res);
