@@ -20,9 +20,9 @@ exports.getIndexByColor = async (req, res) => {
 
 exports.resetIndexes = async (req, res) => {
     try {
-        const result = echosImagesFunctions.resetIndexes();
+        const result = await echosImagesFunctions.resetIndexes();
 
-        if (!result) {
+        if (result.rows.length === 0) {
             return res.status(404).json("Aucune couleur n'a été trouvée");
         }
         return res.json({
