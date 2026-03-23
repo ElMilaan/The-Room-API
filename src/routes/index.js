@@ -526,6 +526,6 @@ router.get('/imagesEchos/color/:id', echosImagesController.getIndexByColor);
  *       500:
  *        description: Erreur serveur
  */
-router.get('/imagesEchos/reset', echosImagesController.resetIndexes);
+router.put('/imagesEchos/reset', echosImagesController.resetIndexes);
 
 module.exports = router;
