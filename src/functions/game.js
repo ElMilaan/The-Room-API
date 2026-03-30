@@ -43,11 +43,20 @@ startPacte = async () => {
     }
 
     buttonsPressed.forEach(id => {
+        console.log("id", id, "timeGain", timeGain);
         addToTimer(id, time / buttonsPressed.length);
     })
     buttonsNotPressed.forEach(id => {
+        console.log("id", id, "timeLoss", timeLoss);
         subtractFromTimer(id, time / buttonsNotPressed.length);
     })
+
+    await pool.query(`
+            UPDATE buttons 
+            SET pressed = false
+            RETURNING *;
+        `);
+
     return {
         gains: { buttonsPressed, timeGain },
         pertes: { buttonsNotPressed, timeLoss }
